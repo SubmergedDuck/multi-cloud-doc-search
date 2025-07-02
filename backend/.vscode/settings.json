@@ -1,0 +1,11 @@
+{
+  "python.pythonPath": "backend/.venv/bin/python",
+  "python.defaultInterpreterPath": "backend/.venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.indexing": true,
+  "python.analysis.autoImportCompletions": true,
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+  "python.linting.mypyEnabled": true,
+  "python.analysis.diagnosticMode": "workspace"
+}
