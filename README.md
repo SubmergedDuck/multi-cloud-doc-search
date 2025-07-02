@@ -1,1 +1,3 @@
-# multi-cloud-doc-search
+# Multi-Cloud Secure AI Document Search
+
+This is a cloud-native, multi-cloud platform that allows users to upload PDF documents and ask questions about their content using AI-powered semantic search. Built with a strong emphasis on cloud infrastructure, security best practices, and automation, the project runs on both Google Cloud Platform (GCP) and AWS using Terraform, Kubernetes, and modern CI/CD practices.
