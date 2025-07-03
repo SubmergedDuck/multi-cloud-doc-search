@@ -1,5 +1,6 @@
-# Imports the io module for handling byte streams
+# Imports the io module for handling byte streams and os interactions
 import io 
+import os
 
 # FastAPI framework and modules for file upload handling
 from fastapi import FastAPI, File, UploadFile
@@ -7,6 +8,7 @@ from fastapi import FastAPI, File, UploadFile
 # Imports middleware to allow cross-origin requests (CORS)
 from fastapi.middleware.cors import CORSMiddleware
 
+from google.cloud import storage
 from PyPDF2 import PdfReader 
 
 # Creates a FastAPI application instance
@@ -21,6 +23,12 @@ app.add_middleware(
     allow_headers=["*"], # Allows all headers like Content-Type, Authorization, etc. 
 )
 
+# GCS bucket name matching my Terraform config
+BUCKET_NAME = "duckcloud-docsearch-bucket"
+
+# Initializes a GCS client to interact with Google Cloud Storage, this client will be used to upload files to the specified bucket
+storage_client = storage.Client()
+
 # Endpoint to upload a file via POST request
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
@@ -28,11 +36,19 @@ async def upload_file(file: UploadFile = File(...)):
     # Read the uploaded file's contents into memory (as bytes)
     contents = await file.read() 
 
-    # Prints the filename and size of the uploaded file to the console
-    print(f"Received file: {file.filename} - size: {len(contents)} bytes")
+    # Gets the bucket from GCS
+    bucket = storage_client.bucket(BUCKET_NAME)
 
-    # Responds with the filename of the uploaded file
-    return {"filename": file.filename}
+    # Creates a blob (object) in the bucket with the filename from the uploaded file
+    blob = bucket.blob(file.filename)
+
+    # Uploads the file contents GCS
+    blob.upload_from_string(contents, content_type=file.content_type)
+
+    return {
+        "message": f"File '{file.filename}' uploaded to bucket '{BUCKET_NAME}'",
+        "gcs_url": f"gs://{BUCKET_NAME}/{file.filename}"
+    }
 
 # Endpoint to extract text from a PDF file via POST request
 @app.post("/extract_text")
@@ -66,7 +82,10 @@ async def extract_text(file: UploadFile = File(...)):
 # The strip() method is used to remove any leading or trailing whitespace from the extracted text
 
 # How to activate virtual environment -> bash: source .venv/bin/activate 
-# How to run the server -> bash: uvicorn main:app --reload -> http://localhost:8000/
+# How to run the server -> bash: uvicorn main:app --reload -> http://localhost:8000/, http://127.0.0.1:8000/docs 
+
+# Setting up GCP Credentials:
+# gcp auth application-default login
 
 # API Documentation Notes:
 # PyPDF2: https://pypdf2.readthedocs.io/en/3.0.0/modules/PdfReader.html
