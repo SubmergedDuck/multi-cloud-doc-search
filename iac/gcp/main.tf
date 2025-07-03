@@ -6,7 +6,7 @@ provider "google" {
 # Creates a google cloud storage bucket
 resource "google_storage_bucket" "doc_storage" {
     name = "duckcloud-docsearch-bucket"
-    location = "Canada"
+    location = "northamerica-northeast1"
     force_destroy = false
 
     # Enables version control
